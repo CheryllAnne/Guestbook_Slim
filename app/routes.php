@@ -6,7 +6,7 @@ use \Psr\Http\Message\ResponseInterface as Response;
 
 use Psr\Http\Message\ServerRequestInterface;
 use utility\Session;
-use composer\Guestbook;
+use controller\Guestbook;
 
 require_once dirname(__FILE__) . '/controllers/Session.php';
 require_once dirname(__FILE__, 2) . '/vendor/autoload.php';
@@ -26,7 +26,7 @@ $container['session'] = function ($container) {
 };
 
 $container['guestbook'] = function ($container) {
-    $guestbook = new Guestbook();
+    $guestbook = new Guestbook($container);
     return $guestbook;
 };
 
@@ -39,35 +39,26 @@ $container['HomeController'] = function ($container) {
 /*************** GUESTBOOK ENTRIES ******************/
 $app->group('/v1/posts', function () use ($app) {
 
-    /*if ($this->session->check('logged_id') == false) {
-        $error = "Please login!";
-        return $response->withStatus(404)->withJson($error);
-        exit;
-    }*/
     //view all entries in the Guestbook
-    $app->get('/view', function(ServerRequestInterface $request, ResponseInterface $response) {
-        $response = $response->withStatus(200);
-        return $response;
-
-    });
+    $app->get('/view', \controller\Guestbook::class . ':viewEntries');
     //submit a new entry
-    $app->post('/new', Guestbook::class . ':newEntry');
+    $app->post('/new', \controller\Guestbook::class . ':newEntry');
     //delete an entry
-    $app->delete('/delete/{id}', Guestbook::class . ':delete');
+    $app->delete('/delete/{id}', \controller\Guestbook::class . ':delete');
     //edit an entry
-    $app->put('/edit/{id}', Guestbook::class . ':edit');
+    $app->put('/edit/{id}', \controller\Guestbook::class . ':edit');
 });
 
 /******************* USERS **********************/
 $app->group('/v1/user', function () use ($app) {
     //view all users
-    $app->get('/view', Guestbook::class . ':viewUser');
+    $app->get('/view', \controller\Guestbook::class . ':viewUser');
     //delete a user by id
-    $app->delete('/delete/{id}', Guestbook::class . ':deleteUser');
+    $app->delete('/delete/{id}', \controller\Guestbook::class . ':deleteUser');
     //edit username of a user
-    $app->put('/edit/{id}', Guestbook::class . ':editUser');
+    $app->put('/edit/{id}', \controller\Guestbook::class . ':editUser');
     //register user
-    $app->post('/register', Guestbook::class . ':register');
+    $app->post('/register', \controller\Guestbook::class . ':register');
     //login
     $app->post('/login', Guestbook::class . ':login');
     //logout
